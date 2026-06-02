@@ -597,8 +597,8 @@ body {
 <!-- Confetti container -->
 <div id="confettiContainer"></div>
 
-<!-- Canción de cumpleaños - pon tu archivo MP3 con este nombre en la misma carpeta -->
-<audio id="birthdayAudio" loop>
+<!-- Canción de cumpleaños -->
+<audio id="birthdayAudio" loop preload="auto">
   <source src="cumpleanos.mp3" type="audio/mpeg">
 </audio>
 
@@ -626,13 +626,34 @@ for (let i = 0; i < 22; i++) {
 let musicPlaying = false;
 const audio = document.getElementById('birthdayAudio');
 
+// Truco para iOS: desbloquear el audio en el primer toque en cualquier parte
+function unlockAudio() {
+  audio.load();
+  document.removeEventListener('touchstart', unlockAudio);
+  document.removeEventListener('click', unlockAudio);
+}
+document.addEventListener('touchstart', unlockAudio, { once: true });
+document.addEventListener('click', unlockAudio, { once: true });
+
+function startMusic() {
+  const btn = document.getElementById('musicBtn');
+  audio.currentTime = 0;
+  const playPromise = audio.play();
+  if (playPromise !== undefined) {
+    playPromise.then(() => {
+      musicPlaying = true;
+      btn.textContent = '🔊';
+      btn.classList.add('playing');
+    }).catch(() => {
+      // Si falla, el usuario puede usar el botón manual
+    });
+  }
+}
+
 function toggleMusic() {
   const btn = document.getElementById('musicBtn');
   if (!musicPlaying) {
-    audio.play();
-    musicPlaying = true;
-    btn.textContent = '🔊';
-    btn.classList.add('playing');
+    startMusic();
   } else {
     audio.pause();
     musicPlaying = false;
@@ -643,13 +664,8 @@ function toggleMusic() {
 
 // ===== OPEN INVITATION =====
 function openInvitation() {
-  // Iniciar música INMEDIATAMENTE dentro del gesto del usuario
-  audio.play().then(() => {
-    musicPlaying = true;
-    const btn = document.getElementById('musicBtn');
-    btn.textContent = '🔊';
-    btn.classList.add('playing');
-  }).catch(() => {});
+  // Reproducir música AQUÍ — mismo hilo del clic del usuario
+  startMusic();
 
   const intro = document.getElementById('intro');
   intro.style.transition = 'all 0.8s cubic-bezier(0.4,0,0.2,1)';
