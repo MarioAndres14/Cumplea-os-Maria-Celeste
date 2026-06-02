@@ -643,6 +643,14 @@ function toggleMusic() {
 
 // ===== OPEN INVITATION =====
 function openInvitation() {
+  // Iniciar música INMEDIATAMENTE dentro del gesto del usuario
+  audio.play().then(() => {
+    musicPlaying = true;
+    const btn = document.getElementById('musicBtn');
+    btn.textContent = '🔊';
+    btn.classList.add('playing');
+  }).catch(() => {});
+
   const intro = document.getElementById('intro');
   intro.style.transition = 'all 0.8s cubic-bezier(0.4,0,0.2,1)';
   intro.style.transform = 'scale(3)';
@@ -655,13 +663,6 @@ function openInvitation() {
     launchConfetti();
     buildBgParticles();
     buildSparkles();
-    // Auto-play music (el clic en el botón ya cuenta como gesto del usuario)
-    audio.play().then(() => {
-      musicPlaying = true;
-      const btn = document.getElementById('musicBtn');
-      btn.textContent = '🔊';
-      btn.classList.add('playing');
-    }).catch(() => {});
   }, 700);
 }
 
